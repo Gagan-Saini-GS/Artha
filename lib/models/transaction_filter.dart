@@ -16,7 +16,7 @@ class TransactionFilter {
 
   factory TransactionFilter.defaultFilter() {
     final now = DateTime.now();
-    final endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+    final endDate = DateTime(now.year, now.month, now.day, 00, 00, 00, 000);
     final startDate = DateTime(
       now.year,
       now.month,
@@ -34,7 +34,7 @@ class TransactionFilter {
   // Computes start/end for a preset period, always anchored to today.
   static ({DateTime start, DateTime end}) dateRangeFor(TimePeriod period) {
     final now = DateTime.now();
-    final endOfToday = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+    final endOfToday = DateTime(now.year, now.month, now.day, 00, 00, 00, 000);
     final startOfToday = DateTime(now.year, now.month, now.day);
 
     final DateTime start = switch (period) {

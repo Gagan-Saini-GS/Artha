@@ -114,34 +114,6 @@ class TransactionListNotifier extends StateNotifier<TransactionState> {
     }
   }
 
-  Future<List<Transaction>> getTransactionsByDateRange({
-    required String startDate,
-    required String endDate,
-    String? type,
-  }) async {
-    state = state.copyWith(isLoading: true);
-
-    try {
-      final List<Transaction> transactions = await ref
-          .read(transactionApiProvider.notifier)
-          .getTransactionsByDateRange(
-            startDate: startDate,
-            endDate: endDate,
-            type: type,
-          );
-
-      state = state.copyWith(transactions: transactions);
-
-      return transactions;
-    } catch (e) {
-      Logger().e(e);
-      state = state.copyWith(transactions: []);
-      throw Exception("Can't fetch recent transactions");
-    } finally {
-      state = state.copyWith(isLoading: false);
-    }
-  }
-
   Future<void> fetchTransactionHistory() async {
     state = state.copyWith(isLoading: true);
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tracker/enums/dateformat.dart';
+import 'package:tracker/models/transaction.dart';
 import 'package:tracker/providers/chart_data_provider.dart';
 import 'package:tracker/providers/transaction_filter_provider.dart';
 import 'package:tracker/providers/transaction_rollup_api_provider.dart';
@@ -15,6 +16,7 @@ import 'package:tracker/utils/formatDateWithLabel.dart';
 import 'package:tracker/utils/getTransactionType.dart';
 import 'package:tracker/widgets/bottom_nav_bar.dart';
 import 'package:tracker/widgets/loader.dart';
+import 'package:tracker/widgets/paginated_list_view.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({super.key});
@@ -58,9 +60,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
     final chartDataController = ref.read(
       chartDataProvider(transactionFilterState.periodType).notifier,
     );
-    final transactionRollupController = ref.read(
-      transactionRollupApiProvider.notifier,
-    );
+    final rollupController = ref.read(transactionRollupApiProvider.notifier);
     final rollupDataState = ref.watch(transactionRollupApiProvider);
 
     return Scaffold(
@@ -137,13 +137,12 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                 });
 
                 try {
-                  final transactions = await transactionRollupController
-                      .getStats(
-                        transactionFilterState.periodType,
-                        range.start,
-                        range.end,
-                        transactionFilterState.type,
-                      );
+                  final transactions = await rollupController.getStats(
+                    transactionFilterState.periodType,
+                    range.start,
+                    range.end,
+                    transactionFilterState.type,
+                  );
 
                   chartDataController.updateChartFromTransactions(transactions);
                 } finally {
@@ -234,19 +233,23 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                             ),
                           ),
                         )
-                      : ListView.builder(
-                          itemCount: rollupDataState.transactions.length,
-                          itemBuilder: (context, index) {
-                            final tx = rollupDataState.transactions[index];
+                      : PaginatedListView<Transaction>(
+                          items: rollupDataState.transactions,
+                          hasMore: rollupDataState.hasMore,
+                          isLoadingMore: rollupDataState.isLoadingMore,
+                          onLoadMore: rollupController.fetchNextPage,
+                          itemBuilder: (context, transaction, index) {
                             return TransactionItem(
                               iconAsset: null,
-                              title: tx.name,
-                              date: formatDateTimeWithMonthName(tx.date),
+                              title: transaction.name,
+                              date: formatDateTimeWithMonthName(
+                                transaction.date,
+                              ),
                               amount:
-                                  "${tx.isIncome ? '+' : '-'} ₹${tx.amount}",
-                              isIncome: tx.isIncome,
-                              type: tx.type,
-                              transactionId: tx.id,
+                                  "${transaction.isIncome ? '+' : '-'} ₹${transaction.amount}",
+                              isIncome: transaction.isIncome,
+                              type: transaction.type,
+                              transactionId: transaction.id,
                             );
                           },
                         ),

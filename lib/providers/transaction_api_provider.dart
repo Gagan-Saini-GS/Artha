@@ -80,48 +80,9 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
     return [];
   }
 
-  Future<List<Transaction>> getTransactionsByDateRange({
-    required String startDate,
-    required String endDate,
-    String? type,
-  }) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final tokenInterceptor = ref.read(tokenInterceptorProvider);
-
-      final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/dates',
-        'GET',
-        queryParams: {
-          'startDate': startDate,
-          'endDate': endDate,
-          if (type != null) 'type': type,
-        },
-      );
-
-      final List<dynamic> transactionsData = response['data'] ?? [];
-      final transactions = transactionsData
-          .map((data) => Transaction.fromJson(data))
-          .toList();
-
-      state = state.copyWith(transactions: transactions, isLoading: false);
-
-      return transactions;
-    } catch (e) {
-      Logger().e(e);
-      state = state.copyWith(
-        isLoading: false,
-        error: 'Failed to fetch transactions: ${e.toString()}',
-      );
-    }
-
-    return [];
-  }
-
   Future<TransactionSummary> fetchTransactionHistory({
     int page = 1,
-    int limit = 20,
+    int limit = 15,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 

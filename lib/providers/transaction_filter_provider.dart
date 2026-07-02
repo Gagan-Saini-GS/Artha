@@ -18,7 +18,7 @@ class TransactionFilterNotifier extends StateNotifier<TransactionFilter> {
 
   // Custom date range from the date picker — period stays unchanged.
   void setDateRange(DateTime start, DateTime end) {
-    final endOfDay = DateTime(end.year, end.month, end.day, 23, 59, 59, 999);
+    final endOfDay = DateTime(end.year, end.month, end.day, 00, 00, 00, 000);
     state = state.copyWith(startDate: start, endDate: endOfDay);
   }
 
