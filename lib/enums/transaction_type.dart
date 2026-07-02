@@ -1,2 +1,2 @@
 // Enum for transaction type
-enum TransactionType { expense, income, saving, withdraw }
+enum TransactionType { expense, income, saving }

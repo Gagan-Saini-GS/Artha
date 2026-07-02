@@ -1,4 +1,3 @@
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:tracker/enums/transaction_type.dart';
 import 'package:tracker/utils/constants.dart';
@@ -11,8 +10,6 @@ String getTransactionType(TransactionType type) {
       return "Income";
     case TransactionType.saving:
       return "Saving";
-    case TransactionType.withdraw:
-      return "Withdraw";
   }
 }
 
@@ -24,8 +21,6 @@ Color getColorByTransactionType(TransactionType type) {
       return greenColor;
     case TransactionType.saving:
       return blueColor;
-    case TransactionType.withdraw:
-      return blackColor;
   }
 }
 
@@ -37,8 +32,6 @@ IconData getIconByType(TransactionType type) {
       return Icons.trending_up_outlined;
     case TransactionType.saving:
       return Icons.account_balance_outlined;
-    case TransactionType.withdraw:
-      return Icons.wallet;
   }
 }
 
@@ -50,7 +43,5 @@ String getLoadingByTransactionType(TransactionType type) {
       return "Loading Incomes...";
     case TransactionType.saving:
       return "Loading Savings...";
-    case TransactionType.withdraw:
-      return "Loading Withdraws...";
   }
 }

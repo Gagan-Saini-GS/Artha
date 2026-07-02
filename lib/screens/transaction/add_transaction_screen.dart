@@ -162,24 +162,25 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         // Clear the form
         _clearForm();
 
-        if (mounted) {
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '$transactionType added successfully! $name - ₹$amount',
-              ),
-              backgroundColor: darkGreenColor,
-              duration: const Duration(seconds: 2),
-            ),
-          );
+        if (!mounted) return;
 
-          context.pop();
-        }
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '$transactionType added successfully! $name of ₹$amount',
+            ),
+            backgroundColor: darkGreenColor,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        context.pop();
       } catch (err) {
         Logger().e("Error: $err");
       }
     } else {
+      if (!mounted) return;
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -224,12 +225,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           color: !_isIncome
-                              ? redColor
+                              ? (isSaving ? blueColor : redColor)
                               : grayColor.withAlpha(100),
                           borderRadius: BorderRadius.circular(7),
                         ),
                         child: Text(
-                          'Expense',
+                          isSaving ? 'Saving' : 'Expense',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: !_isIncome ? whiteColor : lightGrayColor,
@@ -439,7 +440,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                     child: ElevatedButton(
                       onPressed: _addTransaction,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isIncome ? greenColor : redColor,
+                        backgroundColor: _isIncome
+                            ? greenColor
+                            : isSaving
+                            ? blueColor
+                            : redColor,
                         foregroundColor: whiteColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -470,13 +475,21 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
     return Scaffold(
       backgroundColor: greenColor,
       appBar: AppBar(
-        backgroundColor: _isIncome ? greenColor : redColor,
+        backgroundColor: _isIncome
+            ? greenColor
+            : isSaving
+            ? blueColor
+            : redColor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: whiteColor),
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Add ${_isIncome ? "Income" : "Expense"}',
+          'Add ${_isIncome
+              ? "Income"
+              : isSaving
+              ? "Saving"
+              : "Expense"}',
           style: TextStyle(
             color: whiteColor,
             fontWeight: FontWeight.w600,

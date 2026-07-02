@@ -26,8 +26,6 @@ class Transaction {
       return TransactionType.income;
     } else if (type == "Saving") {
       return TransactionType.saving;
-    } else if (type == "Withdraw") {
-      return TransactionType.withdraw;
     }
 
     return TransactionType.expense;

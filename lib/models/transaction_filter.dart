@@ -52,7 +52,6 @@ class TransactionFilter {
     TransactionType.expense => 'Expense',
     TransactionType.income => 'Income',
     TransactionType.saving => 'Saving',
-    TransactionType.withdraw => 'Withdraw',
   };
 
   String get apiTimePeriodType => switch (periodType) {
