@@ -35,8 +35,15 @@ class TransactionItem extends ConsumerWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Transaction'),
-          content: const Text('Do you want to delete this transaction?'),
+          title: Text(
+            'Delete Transaction',
+            style: TextStyle(color: whiteColor),
+          ),
+          content: Text(
+            'Do you want to delete this transaction?',
+            style: TextStyle(color: lightGrayColor),
+          ),
+          backgroundColor: darkGrayColor,
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
