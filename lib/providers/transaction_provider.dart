@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:tracker/enums/transaction_type.dart';
 import 'package:tracker/models/transaction_summary.dart';
 import 'package:tracker/providers/transaction_api_provider.dart';
+import 'package:tracker/providers/wallet_provider.dart';
 import 'package:tracker/utils/getTransactionType.dart';
 import '../models/transaction.dart';
 
@@ -162,6 +163,8 @@ class TransactionListNotifier extends StateNotifier<TransactionState> {
             .where((transaction) => transaction.id != transactionId)
             .toList();
         state = state.copyWith(transactions: updatedTransactions);
+
+        await ref.read(walletProvider.notifier).getWalletDetails();
       }
 
       return success;
