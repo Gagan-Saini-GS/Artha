@@ -30,7 +30,7 @@ class UserApiNotifier extends StateNotifier<UserApiState> {
     try {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'users/get',
+        'users/get/v1',
         'GET',
       );
       final userData = response['data'] ?? response['user'] ?? response;
@@ -57,7 +57,7 @@ class UserApiNotifier extends StateNotifier<UserApiState> {
     try {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'users/update',
+        'users/update/v1',
         'POST',
         body: {'name': name, 'email': email, 'currency': "INR"},
       );

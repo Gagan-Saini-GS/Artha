@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tracker/api/api_service.dart';
-import 'package:tracker/providers/api_service_provider.dart';
 import 'package:tracker/providers/auth_token_provider.dart';
-import 'package:tracker/utils/config.dart';
+import 'package:tracker/providers/token_interceptor_provider.dart';
 
 class LogoutState {
   final bool isLoggingOut;
@@ -33,10 +31,13 @@ class LogoutNotifier extends StateNotifier<LogoutState> {
 
       if (refreshToken != null) {
         // Create API service without auth token for logout call
-        final apiService = ApiService(baseUrl: AppConfig.serverBaseUrl);
-
         // Call logout API
-        await apiService.post('auth/logout', {'refreshToken': refreshToken});
+        final tokenInterceptor = ref.read(tokenInterceptorProvider);
+        await tokenInterceptor.makeStandardRequest(
+          'auth/logout/v1',
+          'POST',
+          body: {'refreshToken': refreshToken},
+        );
       }
 
       // Clear all tokens from storage

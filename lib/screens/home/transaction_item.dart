@@ -66,8 +66,8 @@ class TransactionItem extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
-    if (transactionId == null) return;
+  Future<bool> _handleDelete(BuildContext context, WidgetRef ref) async {
+    if (transactionId == null) return false;
 
     try {
       // Get current local date & time when delete operation is performed
@@ -86,6 +86,8 @@ class TransactionItem extends ConsumerWidget {
           ),
         );
       }
+
+      return true;
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,6 +98,8 @@ class TransactionItem extends ConsumerWidget {
           ),
         );
       }
+
+      return false;
     }
   }
 
@@ -183,10 +187,17 @@ class TransactionItem extends ConsumerWidget {
       direction: DismissDirection.endToStart,
       confirmDismiss: (direction) async {
         final bool? shouldDelete = await _showDeleteConfirmation(context, ref);
-        if (shouldDelete == true) {
-          await _handleDelete(context, ref);
-        }
-        return shouldDelete;
+        if (shouldDelete != true) return false;
+
+        return _handleDelete(context, ref);
+
+        // _handleDelete
+        // return bool -> true if trx deleted, then remove from list as well in flutter,
+        // return bool -> false if trx failed to delete, then don't remove trx from flutter list.
+      },
+      onDismissed: (direction) {
+        // State is already updated inside deleteTransaction (item removed from list).
+        // This callback is required by Flutter to satisfy the Dismissible contract.
       },
       background: Container(
         alignment: Alignment.centerRight,

@@ -100,7 +100,7 @@ class TransactionRollupApiNotifier
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'rollups/stats',
+        'rollups/stats/v1',
         'GET',
         queryParams: {
           "type": getTransactionType(type),
@@ -157,7 +157,7 @@ class TransactionRollupApiNotifier
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/dates',
+        'transactions/dates/v1',
         'GET',
         queryParams: {
           'startDate': startDate,

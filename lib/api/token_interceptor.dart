@@ -58,6 +58,50 @@ class TokenInterceptor {
     }
   }
 
+  Future<dynamic> makeStandardRequest(
+    String endpoint,
+    String method, {
+    Map<String, dynamic>? body,
+    Map<String, String>? queryParams,
+  }) async {
+    try {
+      // First attempt with current token
+      final apiService = ApiService(baseUrl: _baseUrl);
+
+      final response = await _makeRequest(
+        apiService,
+        endpoint,
+        method,
+        body,
+        queryParams: queryParams,
+      );
+      return response;
+    } catch (e) {
+      // If first attempt fails with 401, try to refresh token
+      if (e.toString().contains('401')) {
+        final refreshed = await _refreshToken();
+        if (refreshed) {
+          // Retry with new token
+          final apiService = ApiService(baseUrl: _baseUrl);
+
+          return await _makeRequest(
+            apiService,
+            endpoint,
+            method,
+            body,
+            queryParams: queryParams,
+          );
+        } else {
+          // Refresh failed, throw the original error
+          rethrow;
+        }
+      } else {
+        // Other error, re-throw
+        rethrow;
+      }
+    }
+  }
+
   Future<dynamic> _makeRequest(
     ApiService apiService,
     String endpoint,

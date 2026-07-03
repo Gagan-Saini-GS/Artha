@@ -56,7 +56,7 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/recent',
+        'transactions/recent/v1',
         'GET',
         queryParams: {'page': '1', 'limit': '5'},
       );
@@ -90,7 +90,7 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/history',
+        'transactions/history/v1',
         'GET',
         queryParams: {'page': '$page', 'limit': '$limit'},
       );
@@ -132,7 +132,7 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/add',
+        'transactions/add/v1',
         'POST',
         body: {
           'title': title,
@@ -174,8 +174,8 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
     try {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
-      await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/delete/$transactionId',
+      final response = await tokenInterceptor.makeAuthenticatedRequest(
+        'transactions/delete/v1/$transactionId',
         'DELETE',
         body: {'date': date},
       );
@@ -186,6 +186,17 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
             .where((transaction) => transaction.id != transactionId)
             .toList(),
       );
+
+      final wallet = response['data']['updatedWallet'];
+      Logger().f("Wallet: $wallet");
+      ref
+          .read(walletProvider.notifier)
+          .updateWallet(
+            (wallet['bank_balance'] as num).toDouble(),
+            (wallet['expense'] as num).toDouble(),
+            (wallet['income'] as num).toDouble(),
+            (wallet['saving'] as num).toDouble(),
+          );
 
       return true;
     } catch (e) {
@@ -203,7 +214,7 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/$transactionId',
+        'transactions/details/v1/$transactionId',
         'GET',
       );
 

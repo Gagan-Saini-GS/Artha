@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tracker/providers/api_service_provider.dart';
 import 'package:tracker/providers/auth_token_provider.dart';
+import 'package:tracker/providers/token_interceptor_provider.dart';
 
 class LoginFormState {
   final String email;
@@ -81,13 +81,14 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     );
 
     try {
-      final api = ref.read(apiServiceProvider);
       final authTokenStorage = ref.read(authTokenStorageProvider);
 
-      final response = await api.post('auth/login', {
-        'email': state.email,
-        'password': state.password,
-      });
+      final tokenInterceptor = ref.read(tokenInterceptorProvider);
+      final response = await tokenInterceptor.makeStandardRequest(
+        'auth/login/v1',
+        'POST',
+        body: {'email': state.email, 'password': state.password},
+      );
       // Extract access token and refresh token from response
       final accessToken = response['data']['accessToken'] as String?;
       final refreshToken = response['data']['refreshToken'] as String?;

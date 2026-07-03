@@ -5,3 +5,5 @@ import 'package:tracker/storage/auth_token_storage.dart';
 final authTokenStorageProvider = Provider<AuthTokenStorage>((ref) {
   return AuthTokenStorage();
 });
+
+final authTokenProvider = StateProvider<String?>((ref) => null);

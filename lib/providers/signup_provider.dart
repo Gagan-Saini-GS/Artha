@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tracker/providers/api_service_provider.dart';
 import 'package:tracker/providers/auth_token_provider.dart';
+import 'package:tracker/providers/token_interceptor_provider.dart';
 
 class SignupFormState {
   final String name;
@@ -98,15 +98,19 @@ class SignupFormNotifier extends StateNotifier<SignupFormState> {
     );
 
     try {
-      final api = ref.read(apiServiceProvider);
       final authTokenStorage = ref.read(authTokenStorageProvider);
+      final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
-      final response = await api.post('auth/signup', {
-        'name': state.name,
-        'email': state.email,
-        'password': state.password,
-        'currency': 'INR', // Default currency as per API docs
-      });
+      final response = await tokenInterceptor.makeStandardRequest(
+        'auth/signup/v1',
+        'POST',
+        body: {
+          'name': state.name,
+          'email': state.email,
+          'password': state.password,
+          'currency': 'INR', // Default currency as per API docs
+        },
+      );
 
       // Extract access token and refresh token from response
       final accessToken = response['data']['accessToken'] as String?;

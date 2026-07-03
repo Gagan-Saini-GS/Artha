@@ -66,7 +66,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'wallet/details',
+        'wallet/details/v1',
         'GET',
       );
 
@@ -108,6 +108,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
     double newIncome,
     double newSaving,
   ) {
+    Logger().f("Updating Wallet");
     state = state.copyWith(
       bankBalance: newBankBalance,
       totalExpense: newExpense,

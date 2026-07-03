@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tracker/api/api_service.dart';
-import 'package:tracker/providers/api_service_provider.dart';
 import 'package:tracker/providers/auth_token_provider.dart';
-import 'package:tracker/utils/config.dart';
+import 'package:tracker/providers/token_interceptor_provider.dart';
 
 class RefreshTokenState {
   final bool isRefreshing;
@@ -38,11 +36,13 @@ class RefreshTokenNotifier extends StateNotifier<RefreshTokenState> {
       }
 
       // Create API service without auth token for refresh call
-      final apiService = ApiService(baseUrl: AppConfig.serverBaseUrl);
 
-      final response = await apiService.post('auth/refresh', {
-        'refreshToken': refreshToken,
-      });
+      final tokenInterceptor = ref.read(tokenInterceptorProvider);
+      final response = await tokenInterceptor.makeStandardRequest(
+        'auth/refresh/v1',
+        'POST',
+        body: {'refreshToken': refreshToken},
+      );
 
       final newAccessToken = response['data']['accessToken'] as String?;
 
