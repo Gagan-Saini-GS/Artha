@@ -45,7 +45,7 @@ class TimeFilterButtons extends ConsumerWidget {
             },
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 2),
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
               decoration: BoxDecoration(
                 color: isSelected
                     ? getColorByTransactionType(transactionFilterState.type)
@@ -56,7 +56,7 @@ class TimeFilterButtons extends ConsumerWidget {
                 child: Text(
                   filter.name.capitalize(),
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 16,
                     color: isSelected
                         ? whiteColor
                         : lightGrayColor.withAlpha(200),

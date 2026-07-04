@@ -76,7 +76,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               style: TextStyle(
                 color: whiteColor,
                 fontWeight: FontWeight.bold,
-                fontSize: 24,
+                fontSize: 22,
               ),
             ),
 
@@ -86,7 +86,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                 style: TextStyle(
                   color: getColorByTransactionType(transactionFilterState.type),
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 16,
                 ),
               ),
             ],

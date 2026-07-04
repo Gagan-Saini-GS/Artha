@@ -243,6 +243,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                       ),
                     ),
                   ),
+                  const SizedBox(width: 6),
                   // Income Tab - 50% width
                   Expanded(
                     child: GestureDetector(
@@ -274,166 +275,173 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
             ),
 
             const SizedBox(height: 25),
-
             // Form Fields - Takes available space
             Expanded(
               child: Column(
                 children: [
-                  // Name Field
-                  TextFormField(
-                    controller: _nameController,
-                    style: TextStyle(color: whiteColor),
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                      hintText: 'Enter transaction name',
-                      labelStyle: TextStyle(color: whiteColor),
-                      hintStyle: TextStyle(color: whiteColor),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: whiteColor.withAlpha(200),
-                        ),
-                      ),
-                      iconColor: whiteColor,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Name is required';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  // Amount Field
-                  TextFormField(
-                    controller: _amountController,
-                    style: TextStyle(color: whiteColor),
-                    decoration: InputDecoration(
-                      labelText: 'Amount',
-                      hintText: 'Enter amount',
-                      labelStyle: TextStyle(color: whiteColor),
-                      hintStyle: TextStyle(color: whiteColor),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: whiteColor.withAlpha(200),
-                        ),
-                      ),
-                      prefixIcon: Icon(
-                        Icons.currency_rupee_outlined,
-                        color: lightGrayColor,
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Amount is required';
-                      }
-                      if (double.tryParse(value.trim()) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      if (double.parse(value.trim()) <= 0) {
-                        return 'Amount must be greater than 0';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  // Date Field
-                  TextFormField(
-                    controller: _dateController,
-                    style: TextStyle(color: whiteColor),
-                    decoration: InputDecoration(
-                      labelText: 'Date',
-                      hintText: 'Select date',
-                      labelStyle: TextStyle(color: whiteColor),
-                      hintStyle: TextStyle(color: whiteColor),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: whiteColor.withAlpha(200),
-                        ),
-                      ),
-                      suffixIcon: Icon(
-                        Icons.calendar_today_outlined,
-                        color: lightGrayColor,
-                      ),
-                    ),
-
-                    readOnly: true,
-                    onTap: () => _selectDateAndTime(context),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Note Field
-                  TextFormField(
-                    controller: _noteController,
-                    maxLines: 3,
-                    style: TextStyle(color: whiteColor),
-                    decoration: InputDecoration(
-                      labelText: 'Note',
-                      hintText: 'Enter transaction note',
-                      labelStyle: TextStyle(color: whiteColor),
-                      hintStyle: TextStyle(color: whiteColor),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: whiteColor.withAlpha(200),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  if (!_isIncome) ...[
-                    const SizedBox(height: 15),
-                    InputDecorator(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: whiteColor.withAlpha(200),
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
                         children: [
-                          Text(
-                            'Is Saving?',
+                          // Name Field
+                          TextFormField(
+                            controller: _nameController,
                             style: TextStyle(color: whiteColor),
-                          ),
-                          Switch(
-                            value: isSaving,
-                            onChanged: (value) {
-                              setState(() {
-                                isSaving = value;
-                              });
+                            decoration: InputDecoration(
+                              labelText: 'Name',
+                              hintText: 'Enter transaction name',
+                              labelStyle: TextStyle(color: whiteColor),
+                              hintStyle: TextStyle(color: whiteColor),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: whiteColor.withAlpha(200),
+                                ),
+                              ),
+                              iconColor: whiteColor,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Name is required';
+                              }
+                              return null;
                             },
-                            activeThumbColor: blueColor,
                           ),
+
+                          const SizedBox(height: 15),
+
+                          // Amount Field
+                          TextFormField(
+                            controller: _amountController,
+                            style: TextStyle(color: whiteColor),
+                            decoration: InputDecoration(
+                              labelText: 'Amount',
+                              hintText: 'Enter amount',
+                              labelStyle: TextStyle(color: whiteColor),
+                              hintStyle: TextStyle(color: whiteColor),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: whiteColor.withAlpha(200),
+                                ),
+                              ),
+                              prefixIcon: Icon(
+                                Icons.currency_rupee_outlined,
+                                color: lightGrayColor,
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Amount is required';
+                              }
+                              if (double.tryParse(value.trim()) == null) {
+                                return 'Please enter a valid number';
+                              }
+                              if (double.parse(value.trim()) <= 0) {
+                                return 'Amount must be greater than 0';
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: 15),
+
+                          // Date Field
+                          TextFormField(
+                            controller: _dateController,
+                            style: TextStyle(color: whiteColor),
+                            decoration: InputDecoration(
+                              labelText: 'Date',
+                              hintText: 'Select date',
+                              labelStyle: TextStyle(color: whiteColor),
+                              hintStyle: TextStyle(color: whiteColor),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: whiteColor.withAlpha(200),
+                                ),
+                              ),
+                              suffixIcon: Icon(
+                                Icons.calendar_today_outlined,
+                                color: lightGrayColor,
+                              ),
+                            ),
+                            readOnly: true,
+                            onTap: () => _selectDateAndTime(context),
+                          ),
+
+                          const SizedBox(height: 15),
+
+                          // Note Field
+                          TextFormField(
+                            controller: _noteController,
+                            maxLines: 3,
+                            style: TextStyle(color: whiteColor),
+                            decoration: InputDecoration(
+                              labelText: 'Note',
+                              hintText: 'Enter transaction note',
+                              labelStyle: TextStyle(color: whiteColor),
+                              hintStyle: TextStyle(color: whiteColor),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: whiteColor.withAlpha(200),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          if (!_isIncome) ...[
+                            const SizedBox(height: 15),
+                            InputDecorator(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: whiteColor.withAlpha(200),
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Is Saving?',
+                                    style: TextStyle(color: whiteColor),
+                                  ),
+                                  Switch(
+                                    value: isSaving,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        isSaving = value;
+                                      });
+                                    },
+                                    activeThumbColor: blueColor,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          const SizedBox(height: 15),
                         ],
                       ),
                     ),
-                  ],
+                  ),
 
-                  // Spacer to push button to bottom
-                  const Spacer(),
-
-                  // Add Button at bottom
+                  // Add Button pinned at bottom, outside the scroll area
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -451,7 +459,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                         ),
                       ),
                       child: Text(
-                        'Add ${_isIncome ? 'Income' : 'Expense'}',
+                        'Add ${_isIncome
+                            ? 'Income'
+                            : isSaving
+                            ? 'Saving'
+                            : 'Expense'}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -459,8 +471,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
