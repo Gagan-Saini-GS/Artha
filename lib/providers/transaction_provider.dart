@@ -264,6 +264,10 @@ class AllTransactionListNotifier extends StateNotifier<TransactionState> {
       state = state.copyWith(isLoadingMore: false);
     }
   }
+
+  void updateTransactions(List<Transaction> newTransactions) {
+    state = state.copyWith(transactions: newTransactions);
+  }
 }
 
 final allTransactionListProvider =

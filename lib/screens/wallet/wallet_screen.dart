@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tracker/models/transaction.dart';
 // import 'package:tracker/enums/transaction_type.dart';
 import 'package:tracker/providers/transaction_provider.dart';
+import 'package:tracker/providers/wallet_filter_provider.dart';
 import 'package:tracker/providers/wallet_provider.dart';
 import 'package:tracker/screens/home/transaction_item.dart';
 import 'package:tracker/utils/constants.dart';
@@ -22,6 +23,8 @@ class WalletScreen extends ConsumerStatefulWidget {
 }
 
 class _WalletScreenState extends ConsumerState<WalletScreen> {
+  final _nameController = TextEditingController();
+  final _amountController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -31,11 +34,103 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     });
   }
 
+  Widget _searchDialog() {
+    final walletFilterController = ref.read(walletFilterProvider.notifier);
+
+    return AlertDialog(
+      title: Text("Search Transaction", style: TextStyle(color: whiteColor)),
+      backgroundColor: darkGrayColor,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Name Field
+          TextFormField(
+            controller: _nameController,
+            style: TextStyle(color: whiteColor),
+            decoration: InputDecoration(
+              labelText: 'Name',
+              hintText: 'Enter transaction name',
+              labelStyle: TextStyle(color: whiteColor),
+              hintStyle: TextStyle(color: whiteColor),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+              ),
+              iconColor: whiteColor,
+            ),
+          ),
+          const SizedBox(height: 15),
+
+          // Amount Field
+          TextFormField(
+            controller: _amountController,
+            style: TextStyle(color: whiteColor),
+            decoration: InputDecoration(
+              labelText: 'Amount',
+              hintText: 'Enter amount',
+              labelStyle: TextStyle(color: whiteColor),
+              hintStyle: TextStyle(color: whiteColor),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+              ),
+              prefixIcon: Icon(
+                Icons.currency_rupee_outlined,
+                color: lightGrayColor,
+              ),
+            ),
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null) return null;
+
+              if (double.tryParse(value.trim()) == null) {
+                return 'Please enter a valid number';
+              }
+              if (double.parse(value.trim()) <= 0) {
+                return 'Amount must be greater than 0';
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            _nameController.clear();
+            _amountController.clear();
+            Navigator.pop(context);
+            await walletFilterController.clearSearch();
+          },
+          child: Text(
+            "Clear",
+            style: TextStyle(color: lightGrayColor.withAlpha(150)),
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+            await walletFilterController.searchTransactions(
+              name: _nameController.text,
+              amount: double.tryParse(_amountController.text),
+            );
+          },
+          child: Text("Search", style: TextStyle(color: whiteColor)),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final transactionsState = ref.watch(allTransactionListProvider);
     final transactions = transactionsState.transactions;
     final walletState = ref.watch(walletProvider);
+    final walletFilterState = ref.watch(walletFilterProvider);
 
     return Scaffold(
       backgroundColor: darkGrayColor,
@@ -47,11 +142,26 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         backgroundColor: greenColor,
         foregroundColor: whiteColor,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => _searchDialog(),
+              );
+            },
+            icon: Icon(Icons.search, color: whiteColor),
+          ),
+        ],
       ),
-      body: transactionsState.isLoading && transactions.isEmpty
+      body:
+          transactionsState.isLoading && transactions.isEmpty ||
+              walletFilterState.isLoading
           ? Center(
               child: Loader(
-                title: "Loading Transactions...",
+                title: walletFilterState.isLoading
+                    ? "Searching Transactions..."
+                    : "Loading Transactions...",
                 transparent: true,
                 foregroundColor: whiteColor,
                 backgroundColor: darkGrayColor,
@@ -141,11 +251,15 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           )
                         : PaginatedListView<Transaction>(
                             items: transactions,
-                            onLoadMore: ref
-                                .read(allTransactionListProvider.notifier)
-                                .fetchNextPage,
-                            hasMore: transactionsState.hasMore,
-                            isLoadingMore: transactionsState.isLoadingMore,
+                            onLoadMore: walletFilterState.isSearchMode
+                                ? ref.read(walletFilterProvider.notifier).fetchNextPage
+                                : ref.read(allTransactionListProvider.notifier).fetchNextPage,
+                            hasMore: walletFilterState.isSearchMode
+                                ? walletFilterState.hasMore
+                                : transactionsState.hasMore,
+                            isLoadingMore: walletFilterState.isSearchMode
+                                ? walletFilterState.isLoadingMore
+                                : transactionsState.isLoadingMore,
                             itemBuilder: (context, transaction, index) {
                               return TransactionItem(
                                 iconAsset: null,
