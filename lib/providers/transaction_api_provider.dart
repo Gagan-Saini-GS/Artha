@@ -134,7 +134,7 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
       // `transactions/add/v1` -> Negative Balance allowed
       // `transactions/add/v2` -> Negative Balance not allowed
       final response = await tokenInterceptor.makeAuthenticatedRequest(
-        'transactions/add/v2',
+        'transactions/add/v1',
         'POST',
         body: {
           'title': title,
