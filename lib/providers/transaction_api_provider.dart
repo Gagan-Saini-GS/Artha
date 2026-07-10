@@ -143,6 +143,14 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
         },
       );
 
+      final isSuccess = response['success'];
+
+      if (!isSuccess) {
+        final message = response['message'] ?? 'Failed to add transaction';
+        state = state.copyWith(error: message);
+        throw Exception(message);
+      }
+
       final newTransaction = Transaction.fromJson(
         response['data']['transaction'],
       );
@@ -163,10 +171,8 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
 
       return updatedTransactions;
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to add transaction: ${e.toString()}',
-      );
-      return state.transactions;
+      state = state.copyWith(error: e.toString());
+      rethrow;
     }
   }
 
@@ -188,7 +194,6 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
       );
 
       final wallet = response['data']['updatedWallet'];
-      Logger().f("Wallet: $wallet");
       ref
           .read(walletProvider.notifier)
           .updateWallet(

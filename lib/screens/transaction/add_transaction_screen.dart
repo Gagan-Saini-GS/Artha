@@ -28,6 +28,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
   DateTime _selectedDate = DateTime.now();
   bool _isIncome = false;
   bool isSaving = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -128,7 +129,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
   }
 
   void _addTransaction() async {
+    if (_isSubmitting) return;
     if (_formKey.currentState!.validate()) {
+      setState(() => _isSubmitting = true);
       // Here you would typically save the transaction to your database
       final transactionType = _isIncome
           ? 'Income'
@@ -157,7 +160,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         final transactionController = ref.read(
           transactionListProvider.notifier,
         );
-        transactionController.addTransaction(transaction);
+        await transactionController.addTransaction(transaction);
 
         // Clear the form
         _clearForm();
@@ -178,6 +181,32 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         context.pop();
       } catch (err) {
         Logger().e("Error: $err");
+        if (!mounted) return;
+        final errorMessage = err
+            .toString()
+            .replaceFirst('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Unable to add transaction',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: whiteColor,
+                  ),
+                ),
+                Text(errorMessage, style: TextStyle(color: whiteColor)),
+              ],
+            ),
+            backgroundColor: darkRedColor,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } finally {
+        if (mounted) setState(() => _isSubmitting = false);
       }
     } else {
       if (!mounted) return;
@@ -446,29 +475,40 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _addTransaction,
+                      onPressed: _isSubmitting ? null : _addTransaction,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isIncome
                             ? greenColor
                             : isSaving
                             ? blueColor
                             : redColor,
+                        disabledBackgroundColor: (_isIncome
+                                ? greenColor
+                                : isSaving
+                                ? blueColor
+                                : redColor)
+                            .withAlpha(150),
                         foregroundColor: whiteColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Text(
-                        'Add ${_isIncome
-                            ? 'Income'
-                            : isSaving
-                            ? 'Saving'
-                            : 'Expense'}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: _isSubmitting
+                          ? SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: whiteColor,
+                              ),
+                            )
+                          : Text(
+                              'Add ${_isIncome ? 'Income' : isSaving ? 'Saving' : 'Expense'}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ],

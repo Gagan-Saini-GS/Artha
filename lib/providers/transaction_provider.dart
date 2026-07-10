@@ -82,16 +82,16 @@ class TransactionListNotifier extends StateNotifier<TransactionState> {
             note: transaction.note,
           );
 
-      // Updating Recent Transaction List
-      ref
-          .read(recentTransactionListProvider.notifier)
-          .updateRecentTransactions(updatedTransactions.first);
-
-      state = state.copyWith(transactions: updatedTransactions);
+      if (updatedTransactions.isNotEmpty) {
+        ref
+            .read(recentTransactionListProvider.notifier)
+            .updateRecentTransactions(updatedTransactions.first);
+        state = state.copyWith(transactions: updatedTransactions);
+      }
     } catch (e) {
       Logger().e(e);
       state = state.copyWith(transactions: []);
-      throw Exception("Can't add transaction, Please try again");
+      rethrow;
     } finally {
       state = state.copyWith(isLoading: false);
     }

@@ -108,7 +108,6 @@ class WalletNotifier extends StateNotifier<WalletState> {
     double newIncome,
     double newSaving,
   ) {
-    Logger().f("Updating Wallet");
     state = state.copyWith(
       bankBalance: newBankBalance,
       totalExpense: newExpense,

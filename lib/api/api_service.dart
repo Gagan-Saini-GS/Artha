@@ -71,6 +71,11 @@ class ApiService {
     if (statusCode >= 200 && statusCode < 300) {
       return body;
     } else {
+      // Making a hardcoded check for now
+      final body = jsonDecode(response.body);
+      if (body['message'] == "Insufficient balance") {
+        return body;
+      }
       throw Exception('API Error: $statusCode - ${response.body}');
     }
   }
