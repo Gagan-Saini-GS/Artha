@@ -184,7 +184,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         if (!mounted) return;
         final errorMessage = err
             .toString()
-            .replaceFirst('Exception: ', '');
+            .replaceFirst(RegExp(r'^Exception: \d+: '), '');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Column(
