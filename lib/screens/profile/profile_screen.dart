@@ -69,6 +69,49 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
 
+                // Settings Button
+                Card(
+                  elevation: 2,
+                  shadowColor: greenColor,
+                  margin: const EdgeInsets.symmetric(horizontal: 12.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  color: darkGrayColor,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: greenColor,
+                      child: logoutState.isLoggingOut
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  whiteColor,
+                                ),
+                              ),
+                            )
+                          : Icon(Icons.settings_outlined, color: whiteColor),
+                    ),
+                    title: Text(
+                      "Settings",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: whiteColor,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: grayColor,
+                    ),
+                    onTap: () {
+                      context.push('/settings');
+                    },
+                  ),
+                ),
+
                 // Profile Menu List
                 _buildProfileMenu(),
               ],

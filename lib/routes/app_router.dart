@@ -8,6 +8,7 @@ import '../screens/home/home_screen.dart';
 import '../screens/statistics/statistics_screen.dart';
 import '../screens/wallet/wallet_screen.dart';
 import '../screens/profile/profile_screen.dart';
+import '../screens/settings/settings_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -32,6 +33,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/add-transaction',
       builder: (context, state) => const AddTransactionScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );
