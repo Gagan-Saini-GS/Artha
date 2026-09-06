@@ -25,6 +25,7 @@ class _SignupForm extends ConsumerState<SignupForm> {
     final formNotifier = ref.read(signupFormProvider.notifier);
 
     return Scaffold(
+      backgroundColor: blackColor,
       appBar: AppBar(
         backgroundColor: darkGreenColor,
         elevation: 0,
@@ -55,7 +56,7 @@ class _SignupForm extends ConsumerState<SignupForm> {
                     Text(
                       "Create Account",
                       style: TextStyle(
-                        color: darkGreenColor.withAlpha(200),
+                        color: whiteColor,
                         fontSize: 32,
                         fontWeight: FontWeight.w600,
                       ),
@@ -64,7 +65,7 @@ class _SignupForm extends ConsumerState<SignupForm> {
                     Text(
                       "Hi! Welcome to Artha.\n Please fill all the details to start.",
                       style: TextStyle(
-                        color: blackColor.withAlpha(200),
+                        color: whiteColor,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -76,9 +77,16 @@ class _SignupForm extends ConsumerState<SignupForm> {
               const SizedBox(height: 32),
               TextFormField(
                 onChanged: formNotifier.setName,
+                style: TextStyle(color: whiteColor),
                 decoration: InputDecoration(
                   labelText: 'Name',
                   hintText: 'Enter name',
+                  labelStyle: TextStyle(color: whiteColor),
+                  hintStyle: TextStyle(color: whiteColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+                  ),
+                  iconColor: whiteColor,
                   errorText: form.nameError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -95,9 +103,16 @@ class _SignupForm extends ConsumerState<SignupForm> {
               TextField(
                 onChanged: formNotifier.setEmail,
                 keyboardType: TextInputType.emailAddress,
+                style: TextStyle(color: whiteColor),
                 decoration: InputDecoration(
                   labelText: 'Email',
                   hintText: 'Enter email',
+                  labelStyle: TextStyle(color: whiteColor),
+                  hintStyle: TextStyle(color: whiteColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+                  ),
+                  iconColor: whiteColor,
                   errorText: form.emailError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -108,9 +123,17 @@ class _SignupForm extends ConsumerState<SignupForm> {
               TextField(
                 onChanged: formNotifier.setPassword,
                 obscureText: _obscurePassword,
+                style: TextStyle(color: whiteColor),
                 decoration: InputDecoration(
                   labelText: 'Password',
                   hintText: 'Enter password',
+                  labelStyle: TextStyle(color: whiteColor),
+                  hintStyle: TextStyle(color: whiteColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+                  ),
+                  iconColor: whiteColor,
+                  suffixIconColor: whiteColor,
                   errorText: form.passwordError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -161,10 +184,7 @@ class _SignupForm extends ConsumerState<SignupForm> {
                 children: [
                   Text(
                     'Already Have Account? ',
-                    style: TextStyle(
-                      color: blackColor.withAlpha(200),
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: lightGrayColor, fontSize: 16),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -173,9 +193,9 @@ class _SignupForm extends ConsumerState<SignupForm> {
                     child: Text(
                       'Log In',
                       style: TextStyle(
-                        color: darkGreenColor,
+                        color: whiteColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16,
                         decoration: TextDecoration.underline,
                       ),
                     ),

@@ -25,6 +25,7 @@ class _LoginForm extends ConsumerState<LoginForm> {
     final formNotifier = ref.read(loginFormProvider.notifier);
 
     return Scaffold(
+      backgroundColor: blackColor,
       appBar: AppBar(
         backgroundColor: darkGreenColor,
         elevation: 0,
@@ -55,7 +56,7 @@ class _LoginForm extends ConsumerState<LoginForm> {
                     Text(
                       "Sign In",
                       style: TextStyle(
-                        color: darkGreenColor.withAlpha(200),
+                        color: whiteColor,
                         fontSize: 32,
                         fontWeight: FontWeight.w600,
                       ),
@@ -64,7 +65,7 @@ class _LoginForm extends ConsumerState<LoginForm> {
                     Text(
                       "Hi! Welcome Back, you've been missed.",
                       style: TextStyle(
-                        color: blackColor.withAlpha(200),
+                        color: whiteColor,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -76,9 +77,16 @@ class _LoginForm extends ConsumerState<LoginForm> {
               TextField(
                 onChanged: formNotifier.setEmail,
                 keyboardType: TextInputType.emailAddress,
+                style: TextStyle(color: whiteColor),
                 decoration: InputDecoration(
                   labelText: 'Email',
                   hintText: 'Enter Email',
+                  labelStyle: TextStyle(color: whiteColor),
+                  hintStyle: TextStyle(color: whiteColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+                  ),
+                  iconColor: whiteColor,
                   errorText: form.emailError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -89,9 +97,17 @@ class _LoginForm extends ConsumerState<LoginForm> {
               TextField(
                 onChanged: formNotifier.setPassword,
                 obscureText: _obscurePassword,
+                style: TextStyle(color: whiteColor),
                 decoration: InputDecoration(
                   labelText: 'Password',
                   hintText: 'Enter password',
+                  labelStyle: TextStyle(color: whiteColor),
+                  hintStyle: TextStyle(color: whiteColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+                  ),
+                  iconColor: whiteColor,
+                  suffixIconColor: whiteColor,
                   errorText: form.passwordError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -142,10 +158,7 @@ class _LoginForm extends ConsumerState<LoginForm> {
                 children: [
                   Text(
                     "Don't Have Account? ",
-                    style: TextStyle(
-                      color: blackColor.withAlpha(200),
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: lightGrayColor, fontSize: 16),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -154,9 +167,9 @@ class _LoginForm extends ConsumerState<LoginForm> {
                     child: Text(
                       'Create account',
                       style: TextStyle(
-                        color: darkGreenColor,
+                        color: whiteColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16,
                         decoration: TextDecoration.underline,
                       ),
                     ),
