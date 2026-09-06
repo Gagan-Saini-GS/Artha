@@ -70,46 +70,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 20),
 
                 // Settings Button
-                Card(
-                  elevation: 2,
-                  shadowColor: greenColor,
-                  margin: const EdgeInsets.symmetric(horizontal: 12.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  color: darkGrayColor,
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: greenColor,
-                      child: logoutState.isLoggingOut
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  whiteColor,
-                                ),
-                              ),
-                            )
-                          : Icon(Icons.settings_outlined, color: whiteColor),
-                    ),
-                    title: Text(
-                      "Settings",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: whiteColor,
-                      ),
-                    ),
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: grayColor,
-                    ),
-                    onTap: () {
-                      context.push('/settings');
-                    },
-                  ),
+                profileItem(
+                  "Trackers",
+                  Icons.track_changes,
+                  () {
+                    context.push('/tracker');
+                  },
+                  logoutState,
+                  context,
+                ),
+                const SizedBox(height: 12),
+                // Settings Button
+                profileItem(
+                  "Settings",
+                  Icons.settings_outlined,
+                  () {
+                    context.push('/settings');
+                  },
+                  logoutState,
+                  context,
                 ),
 
                 // Profile Menu List
@@ -129,6 +108,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: Icon(Icons.add, color: whiteColor),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  Card profileItem(
+    String title,
+    IconData icon,
+    GestureTapCallback onTap,
+    LogoutState logoutState,
+    BuildContext context,
+  ) {
+    return Card(
+      elevation: 2,
+      shadowColor: greenColor,
+      margin: const EdgeInsets.symmetric(horizontal: 12.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      color: darkGrayColor,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: greenColor,
+          child: logoutState.isLoggingOut
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(whiteColor),
+                  ),
+                )
+              : Icon(icon, color: whiteColor),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.w500, color: whiteColor),
+        ),
+        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: grayColor),
+        onTap: onTap,
+      ),
     );
   }
 
