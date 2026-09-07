@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
+import 'package:tracker/providers/tracker_provider.dart';
 import 'package:tracker/utils/constants.dart';
 
 class AddTrackerScreen extends ConsumerStatefulWidget {
@@ -48,13 +50,14 @@ class _AddTrackerScreenState extends ConsumerState<AddTrackerScreen> {
       final description = _descriptionController.text.trim();
 
       try {
-        // ignore: unused_local_variable
-        final tracker = {
-          'name': name,
-          'budget': budget,
-          'initialAmount': initialAmount,
-          'description': description,
-        };
+        await ref
+            .read(trackerListProvider.notifier)
+            .addTracker(
+              name: name,
+              budgetAmount: budget,
+              currentAmount: initialAmount,
+              description: description,
+            );
 
         _clearForm();
 
@@ -70,6 +73,7 @@ class _AddTrackerScreenState extends ConsumerState<AddTrackerScreen> {
 
         context.pop();
       } catch (err) {
+        Logger().e("Error: $err");
         if (!mounted) return;
         final errorMessage = err
             .toString()
