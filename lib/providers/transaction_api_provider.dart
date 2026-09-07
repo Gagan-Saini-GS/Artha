@@ -127,6 +127,7 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
     required double amount,
     required String date,
     String? note,
+    String? trackerId,
   }) async {
     try {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
@@ -142,6 +143,7 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
           'amount': amount,
           'date': date,
           if (note != null) 'note': note,
+          'tracker_id': trackerId,
         },
       );
 

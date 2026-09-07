@@ -69,7 +69,10 @@ class TransactionListNotifier extends StateNotifier<TransactionState> {
   final Ref ref;
   TransactionListNotifier(this.ref) : super(TransactionState());
 
-  Future<void> addTransaction(Transaction transaction) async {
+  Future<void> addTransaction(
+    Transaction transaction, {
+    String? trackerId,
+  }) async {
     state = state.copyWith(isLoading: true);
     try {
       final updatedTransactions = await ref
@@ -80,6 +83,7 @@ class TransactionListNotifier extends StateNotifier<TransactionState> {
             amount: transaction.amount,
             date: transaction.date.toIso8601String(),
             note: transaction.note,
+            trackerId: trackerId,
           );
 
       if (updatedTransactions.isNotEmpty) {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:tracker/enums/transaction_type.dart';
 import 'package:tracker/models/transaction.dart';
+import 'package:tracker/providers/tracker_provider.dart';
 import 'package:tracker/providers/transaction_provider.dart';
 import 'package:tracker/utils/constants.dart';
 import 'package:tracker/utils/formatDate.dart';
@@ -29,6 +30,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
   bool _isIncome = false;
   bool isSaving = false;
   bool _isSubmitting = false;
+  String? _selectedTrackerId;
 
   @override
   void initState() {
@@ -44,6 +46,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
       }
     });
     _dateController.text = formatDateTime(_selectedDate);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final trackerState = ref.read(trackerListProvider);
+      if (trackerState.trackers.isEmpty && !trackerState.isLoading) {
+        ref.read(trackerListProvider.notifier).fetchTrackers();
+      }
+    });
   }
 
   @override
@@ -62,6 +70,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
     _selectedDate = DateTime.now();
     _dateController.text = formatDateTime(_selectedDate);
     _noteController.clear();
+    _selectedTrackerId = null;
   }
 
   // This function now handles picking both date and time.
@@ -160,7 +169,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         final transactionController = ref.read(
           transactionListProvider.notifier,
         );
-        await transactionController.addTransaction(transaction);
+        await transactionController.addTransaction(
+          transaction,
+          trackerId: isSaving ? null : _selectedTrackerId,
+        );
 
         // Clear the form
         _clearForm();
@@ -219,6 +231,68 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         ),
       );
     }
+  }
+
+  Widget _buildTrackerDropdown() {
+    final trackerState = ref.watch(trackerListProvider);
+    final trackers = trackerState.trackers;
+
+    final validValue =
+        trackers.any((t) => t.id == _selectedTrackerId)
+        ? _selectedTrackerId
+        : null;
+
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: 'Tracker',
+        labelStyle: TextStyle(color: whiteColor),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: whiteColor.withAlpha(200)),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 4,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String?>(
+          isExpanded: true,
+          value: validValue,
+          hint: Text(
+            trackerState.isLoading && trackers.isEmpty
+                ? 'Loading trackers...'
+                : 'None',
+            style: TextStyle(color: whiteColor.withAlpha(180)),
+          ),
+          icon: Icon(Icons.arrow_drop_down, color: whiteColor),
+          dropdownColor: darkGrayColor,
+          style: TextStyle(color: whiteColor, fontSize: 16),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedTrackerId = newValue;
+            });
+          },
+          items: [
+            DropdownMenuItem<String?>(
+              value: null,
+              child: Text('None', style: TextStyle(color: whiteColor)),
+            ),
+            ...trackers.map(
+              (tracker) => DropdownMenuItem<String?>(
+                value: tracker.id,
+                child: Text(
+                  tracker.name,
+                  style: TextStyle(color: whiteColor),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildTransactionForm() {
@@ -428,6 +502,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                               ),
                             ),
                           ),
+
+                          if (!isSaving) ...[
+                            const SizedBox(height: 15),
+                            // Tracker Dropdown
+                            _buildTrackerDropdown(),
+                          ],
 
                           if (!_isIncome) ...[
                             const SizedBox(height: 15),

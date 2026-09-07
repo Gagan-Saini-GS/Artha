@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:tracker/models/tracker.dart';
 import 'package:tracker/providers/token_interceptor_provider.dart';
+import 'package:tracker/providers/wallet_provider.dart';
 
 class TrackerApiState {
   final List<Tracker> trackers;
@@ -63,7 +64,21 @@ class TrackerApiNotifier extends StateNotifier<TrackerApiState> {
         throw Exception(message);
       }
 
-      final newTracker = Tracker.fromJson(response['data']);
+      final data = response['data'];
+      final newTracker = Tracker.fromJson(data['tracker']);
+
+      final updatedWallet = data['updatedWallet'];
+      if (updatedWallet != null) {
+        ref
+            .read(walletProvider.notifier)
+            .updateWallet(
+              (updatedWallet['bank_balance'] as num).toDouble(),
+              (updatedWallet['expense'] as num).toDouble(),
+              (updatedWallet['income'] as num).toDouble(),
+              (updatedWallet['saving'] as num).toDouble(),
+            );
+      }
+
       state = state.copyWith(
         trackers: [newTracker, ...state.trackers],
         error: null,
@@ -143,10 +158,22 @@ class TrackerApiNotifier extends StateNotifier<TrackerApiState> {
     try {
       final tokenInterceptor = ref.read(tokenInterceptorProvider);
 
-      await tokenInterceptor.makeAuthenticatedRequest(
+      final response = await tokenInterceptor.makeAuthenticatedRequest(
         'tracker/delete/v1/$id',
         'DELETE',
       );
+
+      final updatedWallet = response['data']?['updatedWallet'];
+      if (updatedWallet != null) {
+        ref
+            .read(walletProvider.notifier)
+            .updateWallet(
+              (updatedWallet['bank_balance'] as num).toDouble(),
+              (updatedWallet['expense'] as num).toDouble(),
+              (updatedWallet['income'] as num).toDouble(),
+              (updatedWallet['saving'] as num).toDouble(),
+            );
+      }
 
       state = state.copyWith(
         trackers: state.trackers.where((t) => t.id != id).toList(),
