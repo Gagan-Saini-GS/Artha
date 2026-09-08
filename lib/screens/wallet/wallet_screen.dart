@@ -144,6 +144,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            onPressed: () => context.push('/tracker'),
+            icon: Icon(Icons.track_changes_outlined, color: whiteColor),
+            tooltip: 'Trackers',
+          ),
+          IconButton(
             onPressed: () {
               showDialog(
                 context: context,
