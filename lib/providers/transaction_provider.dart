@@ -135,6 +135,29 @@ class TransactionListNotifier extends StateNotifier<TransactionState> {
     }
   }
 
+  // Attach/detach tracker on an existing transaction. Patches `selectedTransaction`
+  // so the bottom sheet reflects the new state immediately.
+  Future<void> updateTransactionTracker({
+    required String transactionId,
+    required String? trackerId,
+  }) async {
+    try {
+      final updated = await ref
+          .read(transactionApiProvider.notifier)
+          .updateTransactionTracker(
+            transactionId: transactionId,
+            trackerId: trackerId,
+          );
+
+      if (updated != null) {
+        state = state.copyWith(selectedTransaction: updated);
+      }
+    } catch (e) {
+      Logger().e(e);
+      rethrow;
+    }
+  }
+
   Future<void> getTransactionDetailsById(String transactionId) async {
     state = state.copyWith(isLoading: true);
 

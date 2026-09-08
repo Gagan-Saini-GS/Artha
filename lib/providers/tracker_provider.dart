@@ -117,6 +117,18 @@ class TrackerListNotifier extends StateNotifier<TrackerListState> {
     }
   }
 
+  // Sets a tracker's current_amount to an absolute value returned from the
+  // server (used after attach/detach where the backend echoes back the new
+  // current_amount for each affected tracker).
+  void setTrackerCurrentAmount(String trackerId, double currentAmount) {
+    final idx = state.trackers.indexWhere((t) => t.id == trackerId);
+    if (idx < 0) return;
+    final updated = state.trackers[idx].copyWith(currentAmount: currentAmount);
+    final newList = [...state.trackers];
+    newList[idx] = updated;
+    state = state.copyWith(trackers: newList);
+  }
+
   // Locally patch a tracker's current_amount when the server has updated it
   // via a related transaction add/delete, so the trackers list + details screen
   // stay in sync without a full refetch.

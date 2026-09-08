@@ -114,6 +114,8 @@ class TokenInterceptor {
         return await apiService.get(endpoint, queryParams: queryParams);
       case 'POST':
         return await apiService.post(endpoint, body ?? {});
+      case 'PATCH':
+        return await apiService.patch(endpoint, body ?? {});
       case 'DELETE':
         return await apiService.delete(endpoint, body ?? {});
       default:

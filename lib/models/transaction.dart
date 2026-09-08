@@ -1,5 +1,9 @@
 import 'package:tracker/enums/transaction_type.dart';
 
+// Sentinel used by copyWith to distinguish "omit" from "set to null" for
+// nullable fields (e.g. detaching a tracker by passing trackerId: null).
+const _sentinel = Object();
+
 class Transaction {
   final String id;
   final String name;
@@ -8,6 +12,7 @@ class Transaction {
   final bool isIncome;
   final String note;
   final TransactionType type;
+  final String? trackerId;
 
   Transaction({
     required this.id,
@@ -17,6 +22,7 @@ class Transaction {
     required this.isIncome,
     required this.type,
     this.note = "",
+    this.trackerId,
   });
 
   static TransactionType getTypeValue(String type) {
@@ -40,6 +46,31 @@ class Transaction {
       isIncome: json['type'] == 'Income',
       type: getTypeValue(json['type']),
       note: json['note'] ?? '',
+      trackerId: json['tracker_id'],
+    );
+  }
+
+  Transaction copyWith({
+    String? id,
+    String? name,
+    double? amount,
+    DateTime? date,
+    bool? isIncome,
+    TransactionType? type,
+    String? note,
+    Object? trackerId = _sentinel,
+  }) {
+    return Transaction(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      isIncome: isIncome ?? this.isIncome,
+      type: type ?? this.type,
+      note: note ?? this.note,
+      trackerId: identical(trackerId, _sentinel)
+          ? this.trackerId
+          : trackerId as String?,
     );
   }
 

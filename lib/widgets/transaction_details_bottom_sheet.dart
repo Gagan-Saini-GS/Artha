@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:tracker/enums/transaction_type.dart';
+import 'package:tracker/models/tracker.dart';
+import 'package:tracker/providers/tracker_provider.dart';
+import 'package:tracker/providers/tracker_transactions_provider.dart';
 import 'package:tracker/providers/transaction_provider.dart';
 import 'package:tracker/utils/constants.dart';
 import 'package:tracker/utils/formatAmount.dart';
@@ -21,6 +25,8 @@ class TransactionDetailsBottomSheet extends ConsumerStatefulWidget {
 
 class _TransactionDetailsBottomSheetState
     extends ConsumerState<TransactionDetailsBottomSheet> {
+  bool _isUpdatingTracker = false;
+
   @override
   void initState() {
     super.initState();
@@ -28,7 +34,245 @@ class _TransactionDetailsBottomSheetState
       ref
           .read(transactionListProvider.notifier)
           .getTransactionDetailsById(widget.transactionId);
+      // Ensure trackers are loaded so we can render the name + picker.
+      final trackerState = ref.read(trackerListProvider);
+      if (trackerState.trackers.isEmpty && !trackerState.isLoading) {
+        ref.read(trackerListProvider.notifier).fetchTrackers();
+      }
     });
+  }
+
+  Future<Tracker?> _pickTracker(List<Tracker> trackers) async {
+    return showDialog<Tracker>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: darkGrayColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pick a tracker',
+                style: TextStyle(
+                  color: whiteColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (trackers.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    'No trackers yet. Create one first.',
+                    style: TextStyle(color: lightGrayColor),
+                  ),
+                )
+              else
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+                  ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: trackers.length,
+                    separatorBuilder: (_, __) => Divider(
+                      color: whiteColor.withAlpha(20),
+                      height: 1,
+                    ),
+                    itemBuilder: (context, i) {
+                      final t = trackers[i];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          t.name,
+                          style: TextStyle(color: whiteColor),
+                        ),
+                        subtitle: Text(
+                          '₹${formatAmount(t.currentAmount)} / ₹${formatAmount(t.budgetAmount)}',
+                          style: TextStyle(
+                            color: lightGrayColor.withAlpha(200),
+                            fontSize: 12,
+                          ),
+                        ),
+                        onTap: () => Navigator.of(dialogContext).pop(t),
+                      );
+                    },
+                  ),
+                ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: lightGrayColor),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _attachTracker(List<Tracker> trackers) async {
+    final picked = await _pickTracker(trackers);
+    if (picked == null || !mounted) return;
+    await _submit(picked.id);
+  }
+
+  Future<void> _detachTracker(String? oldTrackerId) async {
+    await _submit(null, detachedTrackerId: oldTrackerId);
+  }
+
+  Future<void> _submit(String? trackerId, {String? detachedTrackerId}) async {
+    if (_isUpdatingTracker) return;
+    setState(() => _isUpdatingTracker = true);
+    try {
+      await ref
+          .read(transactionListProvider.notifier)
+          .updateTransactionTracker(
+            transactionId: widget.transactionId,
+            trackerId: trackerId,
+          );
+
+      // If we're viewing the details of the tracker we just detached from,
+      // drop the row from that screen's list too.
+      if (detachedTrackerId != null) {
+        final trackerTxnState = ref.read(trackerTransactionsProvider);
+        if (trackerTxnState.trackerId == detachedTrackerId) {
+          ref
+              .read(trackerTransactionsProvider.notifier)
+              .removeTransaction(widget.transactionId);
+        }
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            trackerId == null ? 'Tracker removed' : 'Tracker attached',
+          ),
+          backgroundColor: darkGreenColor,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (err) {
+      Logger().e('Tracker update failed: $err');
+      if (!mounted) return;
+      final message = err
+          .toString()
+          .replaceFirst(RegExp(r'^Exception: \d+: '), '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to update tracker: $message'),
+          backgroundColor: darkRedColor,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isUpdatingTracker = false);
+    }
+  }
+
+  Widget _buildTrackerSection(String? trackerId, List<Tracker> trackers) {
+    final currentTracker = trackerId == null
+        ? null
+        : trackers.where((t) => t.id == trackerId).firstOrNull;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tracker',
+          style: TextStyle(
+            color: whiteColor,
+            fontWeight: FontWeight.w500,
+            fontSize: 18,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: blackColor.withAlpha(80),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: whiteColor.withAlpha(30)),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.track_changes_outlined,
+                color: trackerId != null ? greenColor : grayColor,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  trackerId == null
+                      ? 'No tracker attached'
+                      : (currentTracker?.name ?? 'Tracker'),
+                  style: TextStyle(
+                    color: trackerId != null ? whiteColor : lightGrayColor,
+                    fontSize: 16,
+                    fontWeight: trackerId != null
+                        ? FontWeight.w500
+                        : FontWeight.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (_isUpdatingTracker)
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: whiteColor,
+                  ),
+                )
+              else if (trackerId == null)
+                TextButton.icon(
+                  onPressed: () => _attachTracker(trackers),
+                  icon: Icon(Icons.add, size: 18, color: greenColor),
+                  label: Text(
+                    'Attach',
+                    style: TextStyle(color: greenColor),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                )
+              else
+                TextButton.icon(
+                  onPressed: () => _detachTracker(trackerId),
+                  icon: Icon(Icons.close, size: 18, color: redColor),
+                  label: Text(
+                    'Remove',
+                    style: TextStyle(color: redColor),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
   }
 
   @override
@@ -49,6 +293,9 @@ class _TransactionDetailsBottomSheetState
     }
 
     final details = trancsationState.selectedTransaction;
+    final trackers = ref.watch(
+      trackerListProvider.select((s) => s.trackers),
+    );
 
     return Container(
       padding: const EdgeInsets.all(24.0),
@@ -175,6 +422,9 @@ class _TransactionDetailsBottomSheetState
 
             const SizedBox(height: 16),
           ],
+
+          if (details.type != TransactionType.saving)
+            _buildTrackerSection(details.trackerId, trackers),
         ],
       ),
     );

@@ -77,6 +77,18 @@ class TrackerTransactionsNotifier
     }
   }
 
+  // Called from the transaction details bottom sheet when a transaction is
+  // detached from the tracker currently being viewed. Keeps the list in sync
+  // without requiring a pull-to-refresh.
+  void removeTransaction(String transactionId) {
+    if (state.transactions.every((t) => t.id != transactionId)) return;
+    state = state.copyWith(
+      transactions: state.transactions
+          .where((t) => t.id != transactionId)
+          .toList(),
+    );
+  }
+
   Future<void> fetchNextPage() async {
     if (state.isLoadingMore || !state.hasMore || state.trackerId.isEmpty) {
       return;

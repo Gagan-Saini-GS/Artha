@@ -241,6 +241,45 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
     }
   }
 
+  // Attaches or detaches a tracker on an existing transaction.
+  // Wallet + rollups are untouched by the backend; only the affected tracker's
+  // current_amount changes -- mirror that locally in trackerListProvider.
+  Future<Transaction?> updateTransactionTracker({
+    required String transactionId,
+    required String? trackerId,
+  }) async {
+    try {
+      final tokenInterceptor = ref.read(tokenInterceptorProvider);
+
+      final response = await tokenInterceptor.makeAuthenticatedRequest(
+        'transactions/set-tracker/v1/$transactionId',
+        'PATCH',
+        body: {'tracker_id': trackerId},
+      );
+
+      final updated = Transaction.fromJson(response['data']['transaction']);
+
+      final updatedTrackers = response['data']['updatedTrackers'] as List?;
+      if (updatedTrackers != null) {
+        final trackerListNotifier = ref.read(trackerListProvider.notifier);
+        for (final t in updatedTrackers) {
+          trackerListNotifier.setTrackerCurrentAmount(
+            t['id'] as String,
+            (t['current_amount'] as num).toDouble(),
+          );
+        }
+      }
+
+      return updated;
+    } catch (e) {
+      Logger().e(e);
+      state = state.copyWith(
+        error: 'Failed to update tracker: ${e.toString()}',
+      );
+      rethrow;
+    }
+  }
+
   Future<Transaction?> getTransactionDetailsById(String transactionId) async {
     state = state.copyWith(isLoading: true, error: null);
 
