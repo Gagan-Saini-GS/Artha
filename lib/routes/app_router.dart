@@ -1,7 +1,9 @@
 import 'package:go_router/go_router.dart';
+import 'package:tracker/models/tracker.dart';
 import 'package:tracker/screens/onboarding/login_form.dart';
 import 'package:tracker/screens/onboarding/signup_form.dart';
 import 'package:tracker/screens/tracker/add_tracker_screen.dart';
+import 'package:tracker/screens/tracker/tracker_details_screen.dart';
 import 'package:tracker/screens/tracker/tracker_screen.dart';
 import 'package:tracker/screens/transaction/add_transaction_screen.dart';
 import '../screens/splash/splash_screen.dart';
@@ -47,6 +49,11 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/add-tracker',
       builder: (context, state) => const AddTrackerScreen(),
+    ),
+    GoRoute(
+      path: '/tracker-details',
+      builder: (context, state) =>
+          TrackerDetailsScreen(tracker: state.extra as Tracker),
     ),
   ],
 );

@@ -117,6 +117,21 @@ class TrackerListNotifier extends StateNotifier<TrackerListState> {
     }
   }
 
+  // Locally patch a tracker's current_amount when the server has updated it
+  // via a related transaction add/delete, so the trackers list + details screen
+  // stay in sync without a full refetch.
+  void applyTrackerDelta(String trackerId, double delta) {
+    final idx = state.trackers.indexWhere((t) => t.id == trackerId);
+    if (idx < 0) return;
+    final tracker = state.trackers[idx];
+    final updated = tracker.copyWith(
+      currentAmount: tracker.currentAmount + delta,
+    );
+    final newList = [...state.trackers];
+    newList[idx] = updated;
+    state = state.copyWith(trackers: newList);
+  }
+
   Future<bool> deleteTracker(String id) async {
     try {
       final success = await ref

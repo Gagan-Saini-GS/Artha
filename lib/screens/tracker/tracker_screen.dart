@@ -69,7 +69,9 @@ class _TrackerScreenState extends ConsumerState<TrackerScreen> {
         ? Color(0xFFE8A335)
         : greenColor;
 
-    return Container(
+    return GestureDetector(
+      onTap: () => context.push('/tracker-details', extra: tracker),
+      child: Container(
       margin: const EdgeInsets.all(14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -152,6 +154,7 @@ class _TrackerScreenState extends ConsumerState<TrackerScreen> {
             ],
           ),
         ],
+      ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:tracker/models/transaction.dart';
 import 'package:tracker/models/transaction_summary.dart';
 import 'package:tracker/providers/token_interceptor_provider.dart';
+import 'package:tracker/providers/tracker_provider.dart';
 import 'package:tracker/providers/wallet_provider.dart';
 
 class TransactionApiState {
@@ -155,9 +156,8 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
         throw Exception(message);
       }
 
-      final newTransaction = Transaction.fromJson(
-        response['data']['transaction'],
-      );
+      final transactionData = response['data']['transaction'];
+      final newTransaction = Transaction.fromJson(transactionData);
 
       final updatedWallet = response['data']['updatedWallet'];
       ref
@@ -168,6 +168,19 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
             (updatedWallet['income'] as num).toDouble(),
             (updatedWallet['saving'] as num).toDouble(),
           );
+
+      // Mirror the server-side tracker.current_amount change locally.
+      // Create: Expense += amount, Income -= amount. Saving is filtered out
+      // by the frontend (tracker_id is always null for Saving).
+      final createdTrackerId = transactionData['tracker_id'];
+      if (createdTrackerId != null && transactionData['type'] != 'Saving') {
+        final trackerDelta = transactionData['type'] == 'Income'
+            ? -newTransaction.amount
+            : newTransaction.amount;
+        ref
+            .read(trackerListProvider.notifier)
+            .applyTrackerDelta(createdTrackerId, trackerDelta);
+      }
 
       final updatedTransactions = [newTransaction, ...state.transactions];
       // Add to current state
@@ -206,6 +219,18 @@ class TransactionApiNotifier extends StateNotifier<TransactionApiState> {
             (wallet['income'] as num).toDouble(),
             (wallet['saving'] as num).toDouble(),
           );
+
+      // Reverse the tracker.current_amount change locally. Mirror of add:
+      // Delete Expense → -amount, Delete Income → +amount.
+      final deleted = response['data']['deletedTransaction'];
+      final deletedTrackerId = deleted?['tracker_id'];
+      if (deletedTrackerId != null && deleted['type'] != 'Saving') {
+        final amount = (deleted['amount'] as num).toDouble();
+        final trackerDelta = deleted['type'] == 'Income' ? amount : -amount;
+        ref
+            .read(trackerListProvider.notifier)
+            .applyTrackerDelta(deletedTrackerId, trackerDelta);
+      }
 
       return true;
     } catch (e) {
